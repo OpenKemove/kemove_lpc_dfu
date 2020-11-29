@@ -1,0 +1,6 @@
+[submodule "chibios"]
+	path = chibios
+	url = https://github.com/ChibiOS/ChibiOS.git
+[submodule "chibios-contrib"]
+	path = chibios-contrib
+	url = https://github.com/OpenKemove/ChibiOS-Contrib.git

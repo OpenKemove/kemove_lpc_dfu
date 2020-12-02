@@ -70,7 +70,9 @@ static THD_FUNCTION(Thread1, arg) {
         iap_command[0] = 50; // Prep Sector
         iap_command[1] = 3; // Start Sec
         iap_command[2] = 15; // Stop Sec
+        chSysLock();
         iap_entry(iap_command, iap_result);
+        chSysUnlock();
         } while(iap_result[0]);
         // Erase All Flash (3-15)
         do {
@@ -78,7 +80,9 @@ static THD_FUNCTION(Thread1, arg) {
         iap_command[1] = 3; // Start Sec
         iap_command[2] = 15; // Stop Sec
         iap_command[3] = 48000; // 48MHz
+        chSysLock();
         iap_entry(iap_command, iap_result);
+        chSysUnlock();
         } while(iap_result[0]);
       }
       uint32_t start_sector = global_offset / 4096;
@@ -86,14 +90,18 @@ static THD_FUNCTION(Thread1, arg) {
       iap_command[0] = 50; // Prep Sector
       iap_command[1] = start_sector; // Start Sec
       iap_command[2] = end_sector; // Stop Sec
+      chSysLock();
       iap_entry(iap_command, iap_result);
+      chSysUnlock();
       // Copy the buffer
       iap_command[0] = 51;
       iap_command[1] = global_offset;
       iap_command[2] = (uint32_t)fw_buffer;
       iap_command[3] = FW_BUFFER_SIZE;
       iap_command[4] = 48000;
+      chSysLock();
       iap_entry(iap_command, iap_result);
+      chSysUnlock();
       global_offset += FW_BUFFER_SIZE;
 
       dfu_need_flush = 0;
@@ -101,8 +109,7 @@ static THD_FUNCTION(Thread1, arg) {
       buffer_fill = 0;
       if (currentState == STATE_DFU_DNLOAD_SYNC || currentState == STATE_DFU_DNBUSY)
         currentState = STATE_DFU_DNLOAD_IDLE;
-      if (currentState == STATE_DFU_MANIFEST_SYNC) {
-        currentState = STATE_DFU_MANIFEST_WAIT_RESET;
+      if (currentState == STATE_DFU_MANIFEST_WAIT_RESET) {
         chThdSleepMilliseconds(2000);
         jump_to_application();
       }

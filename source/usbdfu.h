@@ -7,7 +7,7 @@ extern const USBConfig usbcfg;
 
 #define MAX_FLASH_ADDR 0x10000
 #define FLASH_BASE 0x0
-#define BL_SIZE 0x3000
+#define BL_SIZE 0x2000
 #define APP_BASE (FLASH_BASE + BL_SIZE)
 #define FLASH_PAGE_SIZE 4096
 

@@ -159,8 +159,17 @@ static bool request_handler(USBDriver *usbp) {
             case DFU_GETSTATUS:
                 if (currentState == STATE_DFU_DNLOAD_SYNC) {
                   currentState = STATE_DFU_DNBUSY;
+                  dfu_need_flush = 1;
                 }
+
                 status_response_buffer[4] = currentState;
+
+                if (currentState == STATE_DFU_MANIFEST_SYNC) {
+                  currentState = STATE_DFU_MANIFEST_WAIT_RESET;
+                  if (buffer_fill > 0)
+                    dfu_need_flush = 1;
+                }
+
                 usbSetupTransfer(usbp, (uint8_t *)status_response_buffer, 6, NULL);
                 return true;
             case DFU_GETSTATE:
@@ -200,11 +209,8 @@ static bool request_handler(USBDriver *usbp) {
                   currentState = STATE_DFU_DNLOAD_IDLE;
                 } else {
                   currentState = STATE_DFU_DNLOAD_SYNC;
-                  dfu_need_flush = 1;
                 }
               } else {
-                if (buffer_fill > 0)
-                  dfu_need_flush = 1;
                 currentState = STATE_DFU_MANIFEST_SYNC;
                 lastOperation = LASTOP_IDLE;
               }

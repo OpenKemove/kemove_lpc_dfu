@@ -68,7 +68,7 @@ static THD_FUNCTION(Thread1, arg) {
       if (global_offset == APP_BASE) {
         do {
         iap_command[0] = 50; // Prep Sector
-        iap_command[1] = 3; // Start Sec
+        iap_command[1] = APP_BASE / 0x1000; // Start Sec
         iap_command[2] = 15; // Stop Sec
         chSysLock();
         iap_entry(iap_command, iap_result);
@@ -77,7 +77,7 @@ static THD_FUNCTION(Thread1, arg) {
         // Erase All Flash (3-15)
         do {
         iap_command[0] = 52; // Erase Sector
-        iap_command[1] = 3; // Start Sec
+        iap_command[1] = APP_BASE / 0x1000; // Start Sec
         iap_command[2] = 15; // Stop Sec
         iap_command[3] = 48000; // 48MHz
         chSysLock();
@@ -109,10 +109,11 @@ static THD_FUNCTION(Thread1, arg) {
       buffer_fill = 0;
       if (currentState == STATE_DFU_DNLOAD_SYNC || currentState == STATE_DFU_DNBUSY)
         currentState = STATE_DFU_DNLOAD_IDLE;
-      if (currentState == STATE_DFU_MANIFEST_WAIT_RESET) {
-        chThdSleepMilliseconds(2000);
-        jump_to_application();
-      }
+    }
+    if (currentState == STATE_DFU_MANIFEST_WAIT_RESET) {
+      SCB->AIRCR = 0x05FA0004; // System Reset
+      while(1){
+      };
     }
   }
 }
@@ -130,11 +131,22 @@ int main(void) {
   chSysInit();
 
   palSetLine(LINE_ROW1);
+
+  uint32_t checksum = 0x0;
+  for (int i = 0; i < 8; ++i)
+  {
+    checksum += ((uint32_t*)APP_BASE)[i];
+  }
+
+  uint32_t magic = *((volatile uint32_t*) 0x100001F0);
+
   if (!palReadLine(LINE_COL1)) {
-    if (*((volatile uint32_t*)APP_BASE) != 0xFFFFFFFF) {
+    if (checksum == 0 && magic != 0xDEADBEEF) {
       jump_to_application();
     }
   }
+
+  *((volatile uint32_t*) 0x100001F0) = 0x0;
 
   memset(fw_buffer, 0, FW_BUFFER_SIZE);
   dfu_need_flush = 0;

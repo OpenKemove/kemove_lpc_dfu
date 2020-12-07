@@ -12,5 +12,6 @@ pipeline {
           fingerprint 'build/*.elf'
           fingerprint 'build/*.bin'
       }
+    }
   }
 }

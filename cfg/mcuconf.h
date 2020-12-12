@@ -12,6 +12,6 @@
 #define LPC_SYS_DIV                                 1   // NO SYS DIV
 
 #define LPC_USB_USE_USB1                            TRUE
-#define LPC_USB_USB1_IRQ_PRIORITY                   3
+#define LPC_USB_USB1_IRQ_PRIORITY                   2
 
 #endif

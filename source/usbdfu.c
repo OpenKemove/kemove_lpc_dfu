@@ -51,9 +51,9 @@ static const uint8_t dfu_configuration_descriptor_data[27] = {
   /* DFU Class Descriptor.*/
   USB_DESC_BYTE         (9),            /* bLength.                         */
   USB_DESC_BYTE         (0x21),         /* bDescriptorType (DFU_FCUNTION).  */
-  USB_DESC_BYTE         (0b1011),       /* bmAttributes (DETACH | DOWNLOAD) */
-  USB_DESC_WORD         (  100 ),       /* DetachTimeout.                   */
-  USB_DESC_WORD         (32  ),
+  USB_DESC_BYTE         (0b0111),       /* bmAttributes (DETACH | DOWNLOAD) */
+  USB_DESC_WORD         (  1000),       /* DetachTimeout.                   */
+  USB_DESC_WORD         (  64),
   USB_DESC_BCD          (0x0110)
 };
 
@@ -137,20 +137,25 @@ static enum {
   LASTOP_UPLOAD
 } lastOperation;
 
+void dfu_mark_flush(USBDriver* usbp) {
+  (void)usbp;
+  dfu_need_flush = 1;
+}
+
 static void dfu_status_req(USBDriver *usbp) {
   static uint8_t status_response_buffer[6] = {};
-
   enum dfu_status status = DFU_STATUS_OK;
-  uint32_t pollTime = 500;
+  uint32_t pollTime = (global_offset == 0) ? 500 : 100;
+  uint8_t flush_cb = 0;
 
   // FSM Transition
   if (currentState == STATE_DFU_DNLOAD_SYNC) {
     currentState = STATE_DFU_DNBUSY;
-    dfu_need_flush = 1;
+    flush_cb = 1;
   } else if (currentState == STATE_DFU_MANIFEST_SYNC) {
     if (buffer_fill) {
       currentState = STATE_DFU_MANIFEST;
-      dfu_need_flush = 1;
+      flush_cb = 1;
     } else {
       currentState = STATE_DFU_MANIFEST_WAIT_RESET;
     }
@@ -166,7 +171,7 @@ static void dfu_status_req(USBDriver *usbp) {
   status_response_buffer[4] = (uint8_t) currentState;
   status_response_buffer[5] = 0; // No Index
 
-  usbSetupTransfer(usbp, status_response_buffer, 6, NULL);
+  usbSetupTransfer(usbp, status_response_buffer, 6, (flush_cb ? dfu_mark_flush : NULL));
 }
 
 static bool request_handler(USBDriver *usbp) {

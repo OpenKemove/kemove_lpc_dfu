@@ -11,7 +11,7 @@ extern const USBConfig usbcfg;
 #define APP_BASE (FLASH_BASE + BL_SIZE)
 #define FLASH_PAGE_SIZE 4096
 
-#define FW_BUFFER_SIZE 1024
+#define FW_BUFFER_SIZE 256
 extern uint8_t fw_buffer[FW_BUFFER_SIZE];
 extern volatile uint8_t dfu_need_flush;
 extern volatile uint32_t buffer_fill;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdint.h"
+#include "hal.h"
 
 extern const USBConfig usbcfg;
 
@@ -12,12 +13,6 @@ extern const USBConfig usbcfg;
 #define FLASH_PAGE_SIZE 4096
 
 #define FW_BUFFER_SIZE 256
-extern uint8_t fw_buffer[FW_BUFFER_SIZE];
-extern volatile uint8_t dfu_need_flush;
-extern volatile uint32_t buffer_fill;
-extern volatile uint32_t global_offset;
-extern size_t currentAddress;
-extern volatile enum dfu_state currentState;
 
 enum dfu_req {
     DFU_DETACH,
@@ -63,3 +58,10 @@ enum dfu_status {
     DFU_STATUS_ERR_STALLEDPKT,
 };
 
+struct usb_setup {
+    uint8_t bmRequestType;
+    uint8_t bRequest;
+    uint16_t wValue;
+    uint16_t wIndex;
+    uint16_t wLength;
+} __attribute__((packed));

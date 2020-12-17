@@ -76,9 +76,9 @@ static const uint8_t dfu_string1[] = {
  * Device Description string.
  */
 static const uint8_t dfu_string2[] = {
-  USB_DESC_BYTE(8),                    /* bLength.                         */
+  USB_DESC_BYTE(12),                    /* bLength.                         */
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-  'D', 0, 'F', 0, 'U', 0
+  'S', 0, 'F', 0, 'D', 0, 'F', 0, 'U', 0
 };
 
 /*
@@ -197,7 +197,7 @@ static inline void dfu_status_req(USBDriver *usbp) {
     default:
       break;
   }
-  
+
   // Response Construction
   status_response_buffer[0] = (uint8_t) currentStatus;
   status_response_buffer[1] = (uint8_t) (pollTime & 0xFFU);

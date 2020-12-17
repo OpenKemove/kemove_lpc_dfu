@@ -14,6 +14,7 @@ static uint8_t iap_buffer[INTERNAL_CHUNK_SIZE];
 static size_t buffer_size = 0;
 static size_t buffer_base = 0;
 static size_t last_chunk_size = 0;
+static size_t preped_flash = 0;
 
 size_t target_get_max_fw_size(void) {
 	return (0x10000 - 0x2000);
@@ -23,16 +24,19 @@ uint16_t target_get_timeout(void) {
   if (last_chunk_size != 0 && (buffer_size + last_chunk_size) < INTERNAL_CHUNK_SIZE) {
     return 10;
   }
-	return 100;
+  if (preped_flash == 0) {
+    return 500;
+  }
+	return 20;
 }
 
 void target_flash_unlock(void) {
-	chSysLock();
+	// chSysLock();
 }
 
 static inline bool write_buffer(void) {
-  uint32_t iap_command[5];
-  uint32_t iap_result[4];
+  uint32_t iap_command[5] = {0,0,0,0,0};
+  uint32_t iap_result[4] = {0,0,0,0};
 
   if (((size_t)buffer_base % INTERNAL_CHUNK_SIZE) != 0) {
     return false;
@@ -42,7 +46,7 @@ static inline bool write_buffer(void) {
   iap_command[0] = 50; // Prep Sector
   iap_command[1] = sector; // Start Sec
   iap_command[2] = sector; // Stop Sec
-  iap_entry(iap_command, iap_result);
+  // iap_entry(iap_command, iap_result);
 
   // Copy the buffer
   iap_command[0] = 51; // Copy RAM -> Flash
@@ -50,7 +54,7 @@ static inline bool write_buffer(void) {
   iap_command[2] = (size_t) iap_buffer;
   iap_command[3] = INTERNAL_CHUNK_SIZE;
   iap_command[4] = 48000;
-  iap_entry(iap_command, iap_result);
+  // iap_entry(iap_command, iap_result);
   return iap_result[0] == 0;
 }
 
@@ -78,33 +82,34 @@ bool target_flash_write(uint8_t* dst, uint8_t* src, size_t len) {
 }
 
 bool target_prepare_flash(void) {
-  uint32_t iap_command[5];
-  uint32_t iap_result[4];
+  uint32_t iap_command[5] = {0,0,0,0,0};
+  uint32_t iap_result[4] = {0,0,0,0};
   iap_command[0] = 50; // Prep Sector
   iap_command[1] = APP_BASE / 0x1000; // Start Sec
   iap_command[2] = 15; // Stop Sec
   iap_entry(iap_command, iap_result);
-  if (iap_result[0] != 0) {
-  	return false;
-  }
+  // if (iap_result[0] != 0) {
+  // 	return false;
+  // }
 
   iap_command[0] = 52; // Erase Sector
   iap_command[1] = APP_BASE / 0x1000; // Start Sec
   iap_command[2] = 15; // Stop Sec
   iap_command[3] = 48000; // 48MHz
-  iap_entry(iap_command, iap_result);
-  return iap_result[0] == 0;
+  // iap_entry(iap_command, iap_result);
+
+  preped_flash = 1;
+
+  return true;
 }
 
 void target_flash_lock(void) {
-	chSysUnlock();
+	// chSysUnlock();
 }
 
 void target_complete_programming(void) {
   if (buffer_size > 0) {
     memset(&iap_buffer[buffer_size], 0, INTERNAL_CHUNK_SIZE - buffer_size);
-    target_flash_unlock();
     write_buffer();
-    target_flash_lock();
   }
 }

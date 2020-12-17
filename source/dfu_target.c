@@ -8,12 +8,13 @@
 typedef void (*IAP)(uint32_t [], uint32_t []);
 const IAP iap_entry = (IAP)IAP_LOCATION;
 
-#define INTERNAL_CHUNK_SIZE 256
+#define INTERNAL_CHUNK_SIZE 1024
 
 static uint8_t iap_buffer[INTERNAL_CHUNK_SIZE];
 static size_t buffer_size = 0;
 static size_t buffer_base = 0;
 static size_t last_chunk_size = 0;
+static size_t preped_flash = 0;
 
 size_t target_get_max_fw_size(void) {
 	return (0x10000 - 0x2000);
@@ -21,9 +22,12 @@ size_t target_get_max_fw_size(void) {
 
 uint16_t target_get_timeout(void) {
   if (last_chunk_size != 0 && (buffer_size + last_chunk_size) < INTERNAL_CHUNK_SIZE) {
-    return 10;
+    return 5;
   }
-	return 100;
+  if (preped_flash == 0) {
+    return 50;
+  }
+	return 0;
 }
 
 void target_flash_unlock(void) {
@@ -31,8 +35,8 @@ void target_flash_unlock(void) {
 }
 
 static inline bool write_buffer(void) {
-  uint32_t iap_command[5];
-  uint32_t iap_result[4];
+  uint32_t iap_command[5] = {0,0,0,0,0};
+  uint32_t iap_result[4] = {0,0,0,0};
 
   if (((size_t)buffer_base % INTERNAL_CHUNK_SIZE) != 0) {
     return false;
@@ -70,7 +74,8 @@ bool target_flash_write(uint8_t* dst, uint8_t* src, size_t len) {
     buffer_size += copy_size;
     copied += copy_size;
     if (buffer_size == INTERNAL_CHUNK_SIZE) {
-      write_buffer();
+      if (!write_buffer())
+        return false;
       buffer_size = 0;
     }
   }
@@ -78,8 +83,8 @@ bool target_flash_write(uint8_t* dst, uint8_t* src, size_t len) {
 }
 
 bool target_prepare_flash(void) {
-  uint32_t iap_command[5];
-  uint32_t iap_result[4];
+  uint32_t iap_command[5] = {0,0,0,0,0};
+  uint32_t iap_result[4] = {0,0,0,0};
   iap_command[0] = 50; // Prep Sector
   iap_command[1] = APP_BASE / 0x1000; // Start Sec
   iap_command[2] = 15; // Stop Sec
@@ -93,6 +98,8 @@ bool target_prepare_flash(void) {
   iap_command[2] = 15; // Stop Sec
   iap_command[3] = 48000; // 48MHz
   iap_entry(iap_command, iap_result);
+  preped_flash = 1;
+
   return iap_result[0] == 0;
 }
 
@@ -103,8 +110,6 @@ void target_flash_lock(void) {
 void target_complete_programming(void) {
   if (buffer_size > 0) {
     memset(&iap_buffer[buffer_size], 0, INTERNAL_CHUNK_SIZE - buffer_size);
-    target_flash_unlock();
     write_buffer();
-    target_flash_lock();
   }
 }

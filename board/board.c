@@ -28,11 +28,12 @@ const ioline_t col_list[MATRIX_COLS] = {
 };
 
 void boardInit(void) {
-  palSetLineMode(LINE_LED, MODE_DIR_IN | MODE_MODE_PULL_UP | MODE_AD_DIGITAL);
-  palSetLineMode(LINE_USBVBUS, MODE_FUNC_ALT1 | MODE_MODE_PULL_UP | MODE_AD_DIGITAL);
-  palSetLineMode(LINE_USBCONN, MODE_FUNC_ALT1 | MODE_AD_DIGITAL);
+    palSetLineMode(LINE_LED, MODE_DIR_IN | MODE_MODE_PULL_UP | MODE_AD_DIGITAL);
+    palSetLineMode(LINE_USBVBUS, MODE_FUNC_ALT1 | MODE_MODE_PULL_UP | MODE_AD_DIGITAL);
+    palSetLineMode(LINE_USBCONN, MODE_FUNC_ALT1 | MODE_AD_DIGITAL);
 
-  // Keyboard Matrix
+#if defined(SNOWFOX_V3)
+    // Keyboard Matrix
     for (int i = 0; i < MATRIX_ROWS; ++i)
     {
         palSetLineMode(row_list[i], MODE_DIR_OUT | MODE_AD_DIGITAL);
@@ -42,4 +43,25 @@ void boardInit(void) {
     {
         palSetLineMode(col_list[i], MODE_DIR_IN | MODE_MODE_PULL_DOWN | MODE_AD_DIGITAL);
     }
+#elif defined(SNOWFOX_V1_5)
+    // Keyboard Matrix
+    for (int i = 0; i < MATRIX_ROWS; ++i)
+    {
+        if (i == 1) {
+            palSetLineMode(row_list[i], MODE_FUNC_ALT1 | MODE_DIR_OUT | MODE_AD_DIGITAL);
+        } else {
+            palSetLineMode(row_list[i], MODE_DIR_OUT | MODE_AD_DIGITAL);
+        }
+        palClearLine(row_list[i]);
+    }
+
+    for (int i = 0; i < MATRIX_COLS; ++i)
+    {
+        if (i >= 4 && i <= 7) {
+            palSetLineMode(col_list[i], MODE_FUNC_ALT1 | MODE_DIR_IN | MODE_MODE_PULL_DOWN | MODE_AD_DIGITAL);
+        } else {
+            palSetLineMode(col_list[i], MODE_DIR_IN | MODE_MODE_PULL_DOWN | MODE_AD_DIGITAL);
+        }
+    }
+#endif
 }

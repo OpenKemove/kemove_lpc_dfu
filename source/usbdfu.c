@@ -33,7 +33,7 @@ static const uint8_t dfu_configuration_descriptor_data[27] = {
   USB_DESC_CONFIGURATION(27,            /* wTotalLength.                    */
                          0x01,          /* bNumInterfaces.                  */
                          0x01,          /* bConfigurationValue.             */
-                         0,             /* iConfiguration.                  */
+                         2,             /* iConfiguration.                  */
                          0xC0,          /* bmAttributes (self powered).     */
                          50),           /* bMaxPower (100mA).               */
   /* Interface Descriptor.*/
@@ -44,7 +44,7 @@ static const uint8_t dfu_configuration_descriptor_data[27] = {
                                                                             */
                          0x01,          /* bInterfaceSubClass               */
                          0x02,          /* bInterfaceProtocol               */
-                         0),            /* iInterface.                      */
+                         2),            /* iInterface.                      */
   /* DFU Class Descriptor.*/
   USB_DESC_BYTE         (9),            /* bLength.                         */
   USB_DESC_BYTE         (0x21),         /* bDescriptorType (DFU_FCUNTION).  */
@@ -85,11 +85,9 @@ static const uint8_t dfu_string2[] = {
  * Serial Number string.
  */
 static const uint8_t dfu_string3[] = {
-  USB_DESC_BYTE(8),                     /* bLength.                         */
+  USB_DESC_BYTE(14),                     /* bLength.                         */
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-  '0' + CH_KERNEL_MAJOR, 0,
-  '0' + CH_KERNEL_MINOR, 0,
-  '0' + CH_KERNEL_PATCH, 0
+  'V', 0, '1', 0, '.', 0, '0', 0, '.', 0, '3', 0
 };
 
 /*

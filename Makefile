@@ -87,7 +87,7 @@ MCU  = cortex-m0
 
 # Imported source files and paths.
 CHIBIOS  := ./chibios
-CHIBIOS_CONTRIB := ./chibios-contrib
+CHIBIOS_CONTRIB := ./ChibiOS-Contrib
 CONFDIR  := ./cfg
 DEPDIR   := ./.dep
 BOARDDIR := ./board
@@ -100,7 +100,7 @@ include $(CHIBIOS_CONTRIB)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_lpc
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS_CONTRIB)/os/hal/ports/LPC/LPC11Uxx/platform.mk
 include $(BOARDDIR)/board.mk
-include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v6m.mk

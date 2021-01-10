@@ -87,7 +87,7 @@ static const uint8_t dfu_string2[] = {
 static const uint8_t dfu_string3[] = {
   USB_DESC_BYTE(14),                     /* bLength.                         */
   USB_DESC_BYTE(USB_DESCRIPTOR_STRING), /* bDescriptorType.                 */
-  'V', 0, '1', 0, '.', 0, '0', 0, '.', 0, '3', 0
+  'V', 0, '1', 0, '.', 0, '1', 0, '.', 0, '0', 0
 };
 
 /*

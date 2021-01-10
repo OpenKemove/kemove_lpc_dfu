@@ -171,10 +171,17 @@ BUILDDIR = build/V3
 PROJECT = lpc_boot_v3
 UDEFS += -DSNOWFOX_V3
 endif
+
 ifeq "$(strip $(filter V1_5,$(MAKECMDGOALS)))" "V1_5"
 BUILDDIR = build/V1_5
 PROJECT = lpc_boot-V1_5
 UDEFS += -DSNOWFOX_V1_5
+endif
+
+ifeq "$(strip $(filter TST,$(MAKECMDGOALS)))" "TST"
+BUILDDIR = build/TST
+PROJECT = lpc_boot-TST
+UDEFS += -DSNOWFOX_TST
 endif
 
 .PHONY: default
@@ -182,12 +189,17 @@ endif
 default:
 	$(MAKE) V3
 	$(MAKE) V1_5
+	$(MAKE) TST
 
 V1_5: all
 	@cp $(BUILDDIR)/$(PROJECT).bin build/$(PROJECT).bin
 	@cp $(BUILDDIR)/$(PROJECT).elf build/$(PROJECT).elf
 
 V3: all
+	@cp $(BUILDDIR)/$(PROJECT).bin build/$(PROJECT).bin
+	@cp $(BUILDDIR)/$(PROJECT).elf build/$(PROJECT).elf
+
+TST: all
 	@cp $(BUILDDIR)/$(PROJECT).bin build/$(PROJECT).bin
 	@cp $(BUILDDIR)/$(PROJECT).elf build/$(PROJECT).elf
 ##############################################################################

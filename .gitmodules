@@ -1,6 +1,0 @@
-[submodule "chibios"]
-	path = chibios
-	url = https://github.com/ChibiOS/ChibiOS.git
-[submodule "ChibiOS-Contrib"]
-	path = ChibiOS-Contrib
-	url = https://github.com/Codetector1374/ChibiOS-Contrib.git

@@ -1,14 +1,11 @@
-platform(
-    name = "lpc_11u35",
-    constraint_values = [
-        "@platforms//cpu:armv6-m",
-        "@platforms//os:none",
-    ],
-    visibility = ["//visibility:public"],
-)
+load("//build:platform_transition.bzl", "with_platform")
 
 cc_binary(
     name = "dfu_elf",
+    srcs = [
+        "main.c",
+        "vectors.s",
+    ],
     copts = [
         "-ffreestanding",
         "-nostartfiles",
@@ -17,7 +14,14 @@ cc_binary(
         "-ffreestanding",
         "-nostartfiles",
     ],
-    srcs = [
-        "main.c",
+    target_compatible_with = [
+        "@platforms//cpu:armv6-m",
+        "@platforms//os:none",
     ],
+)
+
+with_platform(
+    name="lpc11u35dev",
+    src=":dfu_elf",
+    platform="//platforms/lpc_11u35_dev"
 )

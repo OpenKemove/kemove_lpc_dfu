@@ -4,7 +4,10 @@ cc_binary(
     name = "dfu_elf",
     srcs = [
         "main.c",
-        "vectors.s",
+        "vectors.S",
+    ],
+    deps = [
+        "linker.ld",
     ],
     copts = [
         "-ffreestanding",
@@ -13,6 +16,7 @@ cc_binary(
     linkopts = [
         "-ffreestanding",
         "-nostartfiles",
+        "-Tlinker.ld"
     ],
     target_compatible_with = [
         "@platforms//cpu:armv6-m",

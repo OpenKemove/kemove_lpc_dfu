@@ -1,6 +1,6 @@
 MEMORY {
     flash(rx) : ORIGIN = 0x00000000, LENGTH = 64k
-    ram0(rw)  : ORIGIN = 0x10000000, LENGTH = 6k
+    sram(rw)  : ORIGIN = 0x10000000, LENGTH = 6k
 }
 
 ENTRY(Reset_Handler);

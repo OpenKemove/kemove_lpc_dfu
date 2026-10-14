@@ -43,7 +43,7 @@ static void jump_to_application(void) {
   while (1);
 }
 
-inline bool is_dfu_pressed(void) {
+static inline bool is_dfu_pressed(void) {
   #ifdef SNOWFOX_TST
     return !palReadLine(LINE_BTN1);
   #else

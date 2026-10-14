@@ -28,7 +28,7 @@
 
 
 MEMORY {
-    flash0  : org = 0x00000000, len = 64k
+    flash0  : org = 0x00000000, len = 8k   /* the application starts at 0x2000 */
     flash1  : org = 0x00000000, len = 0
     flash2  : org = 0x00000000, len = 0
     flash3  : org = 0x00000000, len = 0

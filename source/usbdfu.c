@@ -158,7 +158,12 @@ static void dfu_on_download_complete(USBDriver *usbp) {
 
 static void dfu_on_manifest_request(USBDriver *usbp) {
   (void)usbp;
+  // Interrupts off while the last block is written, as for every other block. A
+  // SysTick during the write fetches its vector from flash that is busy programming,
+  // and the bootloader hangs until a power cycle.
+  target_flash_unlock();
   target_complete_programming();
+  target_flash_lock();
   currentState = STATE_DFU_MANIFEST_WAIT_RESET;
 }
 
